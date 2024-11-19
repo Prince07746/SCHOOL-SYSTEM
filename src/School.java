@@ -8,7 +8,6 @@ import java.sql.DriverManager;
 
 interface SchoolSystem{
     public boolean isLogin();
-    public Connection connectDB();
 }
 
 
@@ -29,19 +28,10 @@ public class School implements SchoolSystem{
 
     @Override
     public boolean isLogin(){
-
+    return  true;
     }
 
-    @Override
-    public Connection connectDB(){
-        Connection connect = null;
-                try{
-                    connect = DriverManager.getConnection();
-                } catch (SQLException e){
-                    System.out.println(e.getMessage());
-                }
-                return connect;
-    }
+
 
     // setters and getters
     public boolean login() {
