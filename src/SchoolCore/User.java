@@ -1,3 +1,5 @@
+package SchoolCore;
+
 import java.util.Objects;
 import java.util.UUID;
 

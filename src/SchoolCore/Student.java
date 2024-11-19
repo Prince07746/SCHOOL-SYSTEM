@@ -1,7 +1,4 @@
-import java.util.ArrayList;
-import java.util.UUID;
-
-
+package SchoolCore;
 
 
 public class Student extends User{

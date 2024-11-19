@@ -1,3 +1,5 @@
+package DBOperations;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -5,21 +7,34 @@ import java.util.Objects;
 
 
 public class DBManager {
+    String urlNoDBName;
     String url;
+    String customUrl;
     String userName;
     String password;
     String DatabaseName;
 
-    public DBManager(String userName, String password, String databaseName) {
-        this.url = "jdbc:mysql://localhost:3306/";
+    public DBManager(String userName, String password,String url,String databaseName) {
+        this.url = url.isBlank() ? "jdbc:mysql://localhost:3306/": url;
         this.userName = userName;
         this.password = password;
         DatabaseName = databaseName;
+        urlNoDBName = getUrl().substring(0,getUrl().lastIndexOf("/") + 1);
+
     }
 
+    public DBManager(String userName, String password,String url) {
+        this.url = url.isBlank() ? "jdbc:mysql://localhost:3306/": url;
+        this.userName = userName;
+        this.password = password;
+        urlNoDBName = getUrl().substring(0,getUrl().lastIndexOf("/") + 1);
+
+    }
+
+    // =================== PRE-CONNECTION ===============================================================
     public boolean isDB(){
         boolean isDatabase = false;
-        try( Connection connection = DriverManager.getConnection(url,userName,password) ){
+        try( Connection connection = DriverManager.getConnection(urlNoDBName,userName,password) ){
              DatabaseMetaData databaseMetaData = connection.getMetaData();
             ResultSet resultSet = databaseMetaData.getCatalogs();
             while (resultSet.next()){
@@ -30,10 +45,54 @@ public class DBManager {
               }
             }
         } catch (SQLException e){
-            e.printStackTrace();
+            System.out.println("error ❌: "+e.getMessage());
         }
         return isDatabase;
     }
+
+    public boolean isDBbyName(String DBName){
+        delayer(" process isDBbyName() ");
+        boolean isDatabase = false;
+        try( Connection connection = DriverManager.getConnection(urlNoDBName+DBName,userName,password) ){
+            isDatabase = true;
+        } catch (SQLException e){
+            System.out.println("error ❌: "+e.getMessage());
+        }
+        return isDatabase;
+    }
+
+
+    public void microDatabase(ArrayList<String> DataBaseNames){
+
+        try(Connection connection = DriverManager.getConnection(urlNoDBName,userName,password)){
+            connection.setAutoCommit(false);
+            try(Statement statement = connection.createStatement();){
+
+                for(String nameDB:DataBaseNames){
+                    if(!isDBbyName(nameDB)){
+                        String sqlCreateDataBase = "CREATE DATABASE "+nameDB+";";
+                        statement.executeUpdate(sqlCreateDataBase);
+                        System.out.println("DataBase [ "+nameDB+" ] OK ✅");
+                        setUrl(urlNoDBName+nameDB);
+                        setDatabaseName(nameDB);
+                        createTables();
+                        System.out.println("************************");
+                    }else{
+                        System.out.println(" [ "+nameDB+" ] exist ❌");
+                    }
+                }
+                connection.commit();
+
+            } catch (SQLException e){
+                connection.rollback();
+                System.out.println("Error creating Database [ MicroDataBase ] ");
+            }
+
+        } catch (SQLException e){
+            System.out.println("Error connecting to the database: " + e.getMessage());
+        }
+    }
+
 
     public boolean isTables(){
         setUrl("jdbc:mysql://localhost:3306/"+getDatabaseName());
@@ -161,7 +220,7 @@ public class DBManager {
     }
 
     public boolean connectDBTechnician(){
-        System.out.println("Integrity check 🛡 ⚖");
+        System.out.println("Integrity check 🛡 ⚖ [ "+getDatabaseName()+" ]");
         boolean isConnected = false;
         if(!isDB()){
             System.out.println("creating DataBase [ "+getDatabaseName()+" ]");
@@ -171,11 +230,11 @@ public class DBManager {
             delayer(" createTables() ==> DBInfo");
             createTables();
             isConnected = true;
-            System.out.println("Database Ready For Use ✅👍");
+            System.out.println("Database [ "+getDatabaseName()+" ] Ready For Use ✅👍");
         }else{
             if(isTables()){
                 delayer(" isTable() ==> DBInfo");
-                System.out.println("Database Ready For Use ✅👍");
+                System.out.println("Database [ "+getDatabaseName()+" ] Ready For Use ✅👍");
                 isConnected = true;
             }else{
                 delayer(" createTables() ==> DBInFo ");
@@ -183,20 +242,20 @@ public class DBManager {
                 createTables();
                 if(isTables()){
                     isConnected = true;
-                    System.out.println("Database Ready For Use ✅👍");
+                    System.out.println("Database [ "+getDatabaseName()+" ] Ready For Use ✅👍");
                 }
 
             }
         }
+        System.out.println("--------------------------------------------------------------");
     return isConnected;
     }
-
 
     public void delayer(String process){
         int totalSteps = 10;  // Total steps for the progress bar
         for(int i = 0; i <= totalSteps; i++){
             try {
-                Thread.sleep(500);  // Wait for 500 milliseconds before each step
+                Thread.sleep(300);  // Wait for 500 milliseconds before each step
 
                 // Calculate the percentage
                 int percentage = (int) ((double) (i) / totalSteps * 100);
@@ -212,7 +271,6 @@ public class DBManager {
         System.out.println();  // Print a newline after the progress bar is finished
     }
 
-
     public boolean requiredTables(ArrayList<String> presentTables){
         ArrayList<String> requiredTable = new ArrayList<>(Arrays.asList("Student","Teacher","EnrollmentST",
                 "EnrollmentTC"));
@@ -223,6 +281,40 @@ public class DBManager {
         return presentTables.containsAll(requiredTable);
     }
 
+    public void deleteDatabase(){
+        if(isDB()){
+            try(Connection connection = DriverManager.getConnection(url,userName,password);){
+                String sqlDropDatabase = "DROP DATABASE "+getDatabaseName()+";";
+                Statement statement = connection.createStatement();
+                statement.executeUpdate(sqlDropDatabase);
+                System.out.println("DATABASE "+getDatabaseName()+" Deleted ✅");
+                setUrl("jdbc:mysql://localhost:3306/");
+            } catch (SQLException e){
+                System.out.println("error ❌"+e.getMessage());
+            }
+        }
+
+    }
+
+    public void renameDatabase(String newName){
+        deleteDatabase();
+        setDatabaseName(newName);
+        if(connectDBTechnician()) System.out.println("DataBase rebooted [ new name ==> "+newName+" ] ✅");
+        else System.out.println("Failed to Rename DataBase ❌");
+    }
+
+
+    // ====================================================================================================
+
+
+
+
+    // ============== AFTER-CONNECTION ====================================================================
+
+
+
+    // =====================================================================================================
+
 
     public String getUrl() {
         return url;
@@ -230,6 +322,23 @@ public class DBManager {
 
     public void setUrl(String url) {
         this.url = url;
+        this.urlNoDBName = url.substring(0, url.lastIndexOf("/") + 1);
+    }
+
+    public String getUrlNoDBName() {
+        return urlNoDBName;
+    }
+
+    public void setUrlNoDBName(String urlNoDBName) {
+        this.urlNoDBName = urlNoDBName;
+    }
+
+    public String getCustomUrl() {
+        return customUrl;
+    }
+
+    public void setCustomUrl(String customUrl) {
+        this.customUrl = customUrl;
     }
 
     public String getUserName() {

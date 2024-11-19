@@ -1,5 +1,6 @@
+package SchoolCore;
+
 import java.util.ArrayList;
-import java.util.UUID;
 
 public class Teacher extends User{
     double salary;
