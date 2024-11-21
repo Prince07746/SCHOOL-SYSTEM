@@ -1,16 +1,10 @@
-package SchoolCore;
+package SchoolCore.UserSystem;
 
 import java.util.Objects;
 import java.util.UUID;
 
 
-
-
-
-
-
-
-abstract class User{
+abstract class User implements UserInterface{
     String name;
     String lastName;
     String gender;
@@ -25,6 +19,9 @@ abstract class User{
         type = getClass().getName();
         this.id = UUID.randomUUID().toString().substring(0,5);
     }
+
+
+
 
     public String getName() {
         return name;

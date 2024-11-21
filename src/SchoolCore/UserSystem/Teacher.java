@@ -1,4 +1,4 @@
-package SchoolCore;
+package SchoolCore.UserSystem;
 
 import java.util.ArrayList;
 

@@ -8,22 +8,17 @@ import java.util.Arrays;
 public class Main {
 
     public static void main(String[] args){
-        DBManager db = new DBManager("root","selemani","");
+
+        DBManager db = new DBManager("root","selemani","","prince");
         // check integrity
+        //  System.out.println(db.connectDBTechnician());
 
-        ArrayList<String> myDBs = new ArrayList<>(Arrays.asList("school1","school2","school3"));
+        //  db.deleteDatabase();
 
-        db.microDatabase(myDBs);
+       ArrayList<String> myDBs = new ArrayList<>(Arrays.asList("school1","school2","school3"));
 
+       db.microDatabase(myDBs);
 
-        DBManager db2 = new DBManager("root","selemani","","school1");
-        db2.connectDBTechnician();
-
-        DBManager db3 = new DBManager("root","selemani","","school2");
-        db3.connectDBTechnician();
-
-        DBManager db4 = new DBManager("root","selemani","","school3");
-        db4.connectDBTechnician();
 
 
     }

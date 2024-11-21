@@ -1,4 +1,4 @@
-package SchoolCore;
+package SchoolCore.Courses;
 
 import java.util.Objects;
 import java.util.UUID;

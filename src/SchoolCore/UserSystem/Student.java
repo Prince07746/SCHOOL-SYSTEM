@@ -1,4 +1,4 @@
-package SchoolCore;
+package SchoolCore.UserSystem;
 
 
 public class Student extends User{

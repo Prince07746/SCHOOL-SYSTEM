@@ -1,10 +1,4 @@
-package SchoolCore;
-
-
-interface SchoolSystem{
-    public boolean isLogin();
-}
-
+package SchoolCore.SchoolSystem;
 
 
 public class School implements SchoolSystem{
