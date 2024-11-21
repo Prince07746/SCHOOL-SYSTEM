@@ -9,8 +9,12 @@ public class Main {
 
     public static void main(String[] args) {
 
+        // don't worry about any setting the connectDBTechnician() will do everything
+
         DBManager db = new DBManager("root","selemani","","school1");
         db.connectDBTechnician();
+
+        // this will read the data from the table student
         db.getAllDataFromTable("student");
 
         // check integrity ==> this the most entry point of the all system because it can create a database if not
