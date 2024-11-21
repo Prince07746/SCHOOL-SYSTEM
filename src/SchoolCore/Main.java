@@ -7,17 +7,20 @@ import java.util.Arrays;
 
 public class Main {
 
-    public static void main(String[] args){
+    public static void main(String[] args) {
 
-        DBManager db = new DBManager("root","selemani","","prince");
+        DBManager db = new DBManager("root","selemani","","school1");
+        db.connectDBTechnician();
+        db.getAllDataFromTable("student");
+
         // check integrity
         //  System.out.println(db.connectDBTechnician());
 
         //  db.deleteDatabase();
 
-       ArrayList<String> myDBs = new ArrayList<>(Arrays.asList("school1","school2","school3"));
+      // ArrayList<String> myDBs = new ArrayList<>(Arrays.asList("school1","school2","school3"));
 
-       db.microDatabase(myDBs);
+      // db.microDatabase(myDBs);
 
 
 

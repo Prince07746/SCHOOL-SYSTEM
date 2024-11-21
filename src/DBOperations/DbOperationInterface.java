@@ -12,8 +12,6 @@ public interface DbOperationInterface {
 
     void microDatabase(ArrayList<String> databaseNames);
 
-    boolean isTables();
-
     void createTables();
 
     void createDatabase();
@@ -22,7 +20,15 @@ public interface DbOperationInterface {
 
     void deleteDatabase();
 
+    void renameDatabase(String newName);
+
     boolean requiredTables(ArrayList<String> presentTables);
 
-    void renameDatabase(String newName);
+    boolean isTables();
+
+    // DML ========= DML QUERY =================================
+
+    public void getAllDataFromTable(String tableName);
+
+
 }

@@ -1,4 +1,6 @@
 package DBOperations;
+import DBOperations.SqlTableUI.*;
+
 import java.util.Scanner;
 import java.sql.*;
 import java.util.ArrayList;
@@ -34,7 +36,7 @@ public class DBManager implements DbOperationInterface {
         this.DatabaseName = "";
     }
 
-    // =================== PRE-CONNECTION ===============================================================
+    // =================== PRE-CONNECTION  DDL ===============================================================
     @Override
     public boolean isDB(){
         boolean isDatabase = false;
@@ -385,9 +387,19 @@ public class DBManager implements DbOperationInterface {
 
 
 
-    // ============== AFTER-CONNECTION ====================================================================
+    // ============== AFTER-CONNECTION  DML ====================================================================
+    @Override
+    public void getAllDataFromTable(String tableName) {
+        String sqlQueryToRetrieveData = "SELECT * FROM "+tableName+";";
+        try(Connection connection = DriverManager.getConnection(url,userName,password)){
 
+            // printable is a method dynamic to print any sql table located in SQLTablePrinter
 
+            SQLTablePrinter.printTable(connection,sqlQueryToRetrieveData);
+        } catch (SQLException e){
+            System.out.println("Error [ getAllDataFromTable ] "+e.getMessage());
+        }
+    }
 
     // =====================================================================================================
 
