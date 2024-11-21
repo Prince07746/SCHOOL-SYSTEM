@@ -69,3 +69,117 @@ The primary entry point for contributions is the **`connectDBTechnician` method*
    - Improve in-code comments and overall documentation.
 
 ---
+
+
+
+
+
+
+
+
+The structure of the database and the relationships between its tables in the **SCHOOL-SYSTEM-JDBC-MYSQL** project can be deduced from the `DBManager.java` file. Here is a detailed breakdown of the database schema:
+
+---
+
+### Tables and Their Structure
+
+#### 1. **Teacher Table**
+Represents teachers in the school system.
+```sql
+CREATE TABLE Teacher (
+    id VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    lastName VARCHAR(100) NOT NULL,
+    gender VARCHAR(10) NOT NULL,
+    age INT NOT NULL,
+    salary DOUBLE NOT NULL
+);
+```
+
+#### 2. **Student Table**
+Represents students in the school system.
+```sql
+CREATE TABLE Student (
+    id VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    lastName VARCHAR(100) NOT NULL,
+    gender VARCHAR(10) NOT NULL,
+    age INT NOT NULL
+);
+```
+
+#### 3. **Course Table**
+Stores information about courses offered in the system.
+```sql
+CREATE TABLE Course (
+    id VARCHAR(50) PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    maxPoints DOUBLE NOT NULL
+);
+```
+
+#### 4. **EnrollmentST Table (Student Enrollment)**
+Links students to courses and teachers, along with their performance (marks).
+```sql
+CREATE TABLE EnrollmentST (
+    id VARCHAR(50) PRIMARY KEY,
+    studentId VARCHAR(50),
+    teacherId VARCHAR(50),
+    courseId VARCHAR(50),
+    marks DOUBLE,
+    FOREIGN KEY (studentId) REFERENCES Student(id),
+    FOREIGN KEY (teacherId) REFERENCES Teacher(id),
+    FOREIGN KEY (courseId) REFERENCES Course(id)
+);
+```
+
+#### 5. **EnrollmentTC Table (Teacher Course Assignment)**
+Links teachers to courses they are responsible for teaching.
+```sql
+CREATE TABLE EnrollmentTC (
+    id VARCHAR(50) PRIMARY KEY,
+    courseId VARCHAR(50),
+    teacherId VARCHAR(50),
+    FOREIGN KEY (courseId) REFERENCES Course(id),
+    FOREIGN KEY (teacherId) REFERENCES Teacher(id)
+);
+```
+
+---
+
+### Relationships Between Tables
+
+1. **`Student` ↔ `EnrollmentST`:**
+   - A **Student** can be enrolled in multiple courses via the **EnrollmentST** table.
+   - The relationship is **one-to-many** from `Student` to `EnrollmentST`.
+
+2. **`Teacher` ↔ `EnrollmentST`:**
+   - A **Teacher** can be assigned to multiple students for specific courses via the **EnrollmentST** table.
+   - The relationship is **one-to-many** from `Teacher` to `EnrollmentST`.
+
+3. **`Course` ↔ `EnrollmentST`:**
+   - A **Course** can have multiple students enrolled, with grades stored in the **EnrollmentST** table.
+   - The relationship is **one-to-many** from `Course` to `EnrollmentST`.
+
+4. **`Teacher` ↔ `EnrollmentTC`:**
+   - A **Teacher** can teach multiple courses, recorded in the **EnrollmentTC** table.
+   - The relationship is **one-to-many** from `Teacher` to `EnrollmentTC`.
+
+5. **`Course` ↔ `EnrollmentTC`:**
+   - A **Course** can have multiple teachers assigned (e.g., for collaborative teaching), recorded in **EnrollmentTC**.
+   - The relationship is **one-to-many** from `Course` to `EnrollmentTC`.
+![image](https://github.com/user-attachments/assets/8b785ed3-f63f-4563-846e-61fe54339c34)
+
+---
+
+### Entity-Relationship (ER) Diagram
+
+#### Summary of Relationships:
+- **Primary Keys:**
+  - `id` fields are unique identifiers for each table.
+- **Foreign Keys:**
+  - `studentId` in `EnrollmentST` → `id` in `Student`.
+  - `teacherId` in both `EnrollmentST` and `EnrollmentTC` → `id` in `Teacher`.
+  - `courseId` in both `EnrollmentST` and `EnrollmentTC` → `id` in `Course`.
+
+This schema ensures data integrity and enforces relationships between entities like students, teachers, and courses. Each table is modular, allowing flexibility in system design while supporting the overall school management functionality.
