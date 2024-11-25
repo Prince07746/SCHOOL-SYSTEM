@@ -26,6 +26,9 @@ public interface DbOperationInterface {
 
     boolean isTables();
 
+    void createTableByMissing(ArrayList<String> missingTables);
+
+    ArrayList<String> getMissingTables(ArrayList<String> presentTables);
     // DML ========= DML QUERY =================================
 
     public void getAllDataFromTable(String tableName);
