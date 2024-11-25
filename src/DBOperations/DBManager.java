@@ -1,6 +1,9 @@
 package DBOperations;
 import DBOperations.SqlTableUI.*;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.Scanner;
 import java.sql.*;
 import java.util.ArrayList;
@@ -56,8 +59,6 @@ public class DBManager implements DbOperationInterface {
         return isDatabase;
     }
 
-
-
     @Override
     public void isDataBaseBlankFixing() {
         StringBuilder dbNameFix = new StringBuilder();
@@ -72,7 +73,7 @@ public class DBManager implements DbOperationInterface {
         }
     }
 
-
+    // it checks if the Database exist
     @Override
     public boolean isDBbyName(String DBName){
         delayer(" process isDBbyName() ");
@@ -85,6 +86,117 @@ public class DBManager implements DbOperationInterface {
         return isDatabase;
     }
 
+    // create database
+    @Override
+    public void createDatabase(){
+
+
+        if(getDatabaseName().isEmpty()) isDataBaseBlankFixing();
+
+        try (Connection connection = DriverManager.getConnection(url, userName, password)) {
+
+            String sqlCreateDB = "CREATE DATABASE " + getDatabaseName() + ";";
+
+            try (Statement createDataBase = connection.createStatement()) {
+                createDataBase.executeUpdate(sqlCreateDB);
+                setUrl("jdbc:mysql://localhost:3306/" + getDatabaseName());
+                System.out.println("Database OK ✅");
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+
+        }
+
+
+
+
+    }
+
+    // perform the integrity check (database ,tables , url)
+    @Override
+    public boolean connectDBTechnician(){
+        System.out.println("Integrity check 🛡 ⚖ [ "+getDatabaseName()+" ]");
+        boolean isConnected = false;
+        Scanner scanner = new Scanner(System.in);
+
+        if(!isDB()){
+
+
+            System.out.println("creating DataBase [ "+getDatabaseName()+" ]");
+            delayer(" createDatabase() ==> DBInfo");
+            createDatabase(); // create database
+            System.out.println("creating Tables [ Student, Teacher, EnrollmentST, EnrollmentTC ]");
+            delayer(" createTables() ==> DBInfo");
+            createTables(); // create tables
+            isConnected = true;
+            if(isDB()) System.out.println("Database [ "+getDatabaseName()+" ] Ready For Use ✅👍");
+
+
+
+        }else{
+            if(isTables()){
+
+                delayer(" isTable() ==> DBInfo");
+                System.out.println("Database [ "+getDatabaseName()+" ] Ready For Use ✅👍");
+                isConnected = true;
+
+            }else{
+
+                delayer(" createTables() ==> DBInFo ");
+                System.out.println("creating Tables [ Student, Teacher, EnrollmentST, EnrollmentTC ]");
+                createTables();
+                if(isTables()){
+                    isConnected = true;
+                    System.out.println("Database [ "+getDatabaseName()+" ] Ready For Use ✅👍");
+                }
+
+            }
+        }
+        System.out.println("--------------------------------------------------------------");
+        return isConnected;
+    }
+
+    // this will delete the current database
+    @Override
+    public void deleteDatabase(){
+        Scanner input = new Scanner(System.in);
+        System.out.println("DATABASE DROPPING");
+        System.out.println("-----------------");
+        System.out.print("Enter name or leave (blank) to delete de current DB: ");
+        String dbName = input.nextLine();
+        if(dbName.equalsIgnoreCase("x")) {
+            System.out.println("process aborted");
+            return;
+        }
+
+        if(!dbName.isBlank()) setDatabaseName(dbName);
+
+        if(isDB()){
+            try(Connection connection = DriverManager.getConnection(url,userName,password);){
+                String sqlDropDatabase = "DROP DATABASE "+getDatabaseName()+";";
+                Statement statement = connection.createStatement();
+                statement.executeUpdate(sqlDropDatabase);
+                System.out.println("DATABASE "+getDatabaseName()+" Deleted ✅");
+                setUrl("jdbc:mysql://localhost:3306/");
+            } catch (SQLException e){
+                System.out.println("error ❌"+e.getMessage());
+            }
+        }
+
+    }
+
+    // Rename the Database but be careful ( !!!!! this is a trap read before )
+    public void renameDatabase(String newName){
+        deleteDatabase();
+        setDatabaseName(newName);
+        if(connectDBTechnician()) System.out.println("DataBase rebooted [ new name ==> "+newName+" ] ✅");
+        else System.out.println("Failed to Rename DataBase ❌");
+    }
 
     // creating Database for more micro system
     @Override
@@ -119,6 +231,10 @@ public class DBManager implements DbOperationInterface {
         }
     }
 
+    // --------------------------------------------------------------------------
+
+
+
     // checking tables in the database
     @Override
     public boolean isTables(){
@@ -142,6 +258,31 @@ public class DBManager implements DbOperationInterface {
             e.printStackTrace();
         }
         return isTable;
+    }
+
+    @Override
+    public ArrayList<String> getTables(){
+
+        setUrl("jdbc:mysql://localhost:3306/"+getDatabaseName());
+        boolean isTable = false;
+        String sqlCheckTables = """
+                SHOW TABLES;
+                """;
+        ArrayList<String> dataBaseTabes = new ArrayList<>();
+        try( Connection connection = DriverManager.getConnection(url,userName,password);
+             PreparedStatement preparedStatement = connection.prepareStatement(sqlCheckTables);
+        ){
+            ResultSet resultSet = preparedStatement.executeQuery();
+
+            while (resultSet.next()){
+                String name = resultSet.getString(1);
+                dataBaseTabes.add(name);
+            }
+
+        } catch (SQLException e){
+            e.printStackTrace();
+        }
+        return dataBaseTabes;
     }
 
     // create tables
@@ -237,86 +378,25 @@ public class DBManager implements DbOperationInterface {
 
     }
 
-    // create database
-    @Override
-    public void createDatabase(){
-
-
-        if(getDatabaseName().isEmpty()) isDataBaseBlankFixing();
-
-        try (Connection connection = DriverManager.getConnection(url, userName, password)) {
-
-                    String sqlCreateDB = "CREATE DATABASE " + getDatabaseName() + ";";
-
-                    try (Statement createDataBase = connection.createStatement()) {
-                        createDataBase.executeUpdate(sqlCreateDB);
-                        setUrl("jdbc:mysql://localhost:3306/" + getDatabaseName());
-                        System.out.println("Database OK ✅");
-                    } catch (SQLException e) {
-                        e.printStackTrace();
-                    }
-
-
-
-        } catch (SQLException e) {
-                    e.printStackTrace();
-
-        }
-
-
-
-
-    }
-
-    // perform the integrity check (database ,tables , url)
-    @Override
-    public boolean connectDBTechnician(){
-        System.out.println("Integrity check 🛡 ⚖ [ "+getDatabaseName()+" ]");
-        boolean isConnected = false;
-        Scanner scanner = new Scanner(System.in);
-
-        if(!isDB()){
-
-
-                    System.out.println("creating DataBase [ "+getDatabaseName()+" ]");
-                    delayer(" createDatabase() ==> DBInfo");
-                    createDatabase(); // create database
-                    System.out.println("creating Tables [ Student, Teacher, EnrollmentST, EnrollmentTC ]");
-                    delayer(" createTables() ==> DBInfo");
-                    createTables(); // create tables
-                    isConnected = true;
-                    if(isDB()) System.out.println("Database [ "+getDatabaseName()+" ] Ready For Use ✅👍");
-
-
-
-        }else{
-            if(isTables()){
-
-                delayer(" isTable() ==> DBInfo");
-                System.out.println("Database [ "+getDatabaseName()+" ] Ready For Use ✅👍");
-                isConnected = true;
-
-            }else{
-
-                    delayer(" createTables() ==> DBInFo ");
-                    System.out.println("creating Tables [ Student, Teacher, EnrollmentST, EnrollmentTC ]");
-                    createTables();
-                    if(isTables()){
-                        isConnected = true;
-                        System.out.println("Database [ "+getDatabaseName()+" ] Ready For Use ✅👍");
-                    }
-
-            }
-        }
-        System.out.println("--------------------------------------------------------------");
-    return isConnected;
-    }
-
     // checks if all the required tables exist
     @Override
     public boolean requiredTables(ArrayList<String> presentTables){
-        ArrayList<String> requiredTable = new ArrayList<>(Arrays.asList("Student","Teacher","EnrollmentST",
-                "EnrollmentTC"));
+
+        ArrayList<String> requiredTable = new ArrayList<>();
+
+        try(FileReader reader = new FileReader("src/DBOperations/DatabaseResource/table.csv")) {
+            BufferedReader bufferedReader = new BufferedReader(reader);
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                requiredTable.add(line);
+            }
+            bufferedReader.close();
+        } catch (IOException e) {
+            System.out.println("System stop working... no connection to tables authenticity");
+            delayer("requiredTables() ");
+            System.exit(0);
+            e.printStackTrace();
+        }
 
         requiredTable.replaceAll(String::toLowerCase);
         presentTables.replaceAll(String::toLowerCase);
@@ -324,42 +404,7 @@ public class DBManager implements DbOperationInterface {
         return presentTables.containsAll(requiredTable);
     }
 
-    // this will delete the current database
-    @Override
-    public void deleteDatabase(){
-        Scanner input = new Scanner(System.in);
-        System.out.println("DATABASE DROPPING");
-        System.out.println("-----------------");
-        System.out.print("Enter name or leave (blank) to delete de current DB: ");
-        String dbName = input.nextLine();
-        if(dbName.equalsIgnoreCase("x")) {
-            System.out.println("process aborted");
-            return;
-        }
-
-        if(!dbName.isBlank()) setDatabaseName(dbName);
-
-        if(isDB()){
-            try(Connection connection = DriverManager.getConnection(url,userName,password);){
-                String sqlDropDatabase = "DROP DATABASE "+getDatabaseName()+";";
-                Statement statement = connection.createStatement();
-                statement.executeUpdate(sqlDropDatabase);
-                System.out.println("DATABASE "+getDatabaseName()+" Deleted ✅");
-                setUrl("jdbc:mysql://localhost:3306/");
-            } catch (SQLException e){
-                System.out.println("error ❌"+e.getMessage());
-            }
-        }
-
-    }
-
-
-    public void renameDatabase(String newName){
-        deleteDatabase();
-        setDatabaseName(newName);
-        if(connectDBTechnician()) System.out.println("DataBase rebooted [ new name ==> "+newName+" ] ✅");
-        else System.out.println("Failed to Rename DataBase ❌");
-    }
+    // ---------------------------------------------------------------------------
 
     // delay the process for moving to the next step using a counter time
     public void delayer(String process){
@@ -387,7 +432,12 @@ public class DBManager implements DbOperationInterface {
 
 
 
+
+
     // ============== AFTER-CONNECTION  DML ====================================================================
+
+
+    // get all the Data from a table
     @Override
     public void getAllDataFromTable(String tableName) {
         String sqlQueryToRetrieveData = "SELECT * FROM "+tableName+";";
@@ -400,6 +450,46 @@ public class DBManager implements DbOperationInterface {
             System.out.println("Error [ getAllDataFromTable ] "+e.getMessage());
         }
     }
+
+
+    // select data by column
+    @Override
+    public void  getFromTableSelectByColumn(){
+        Scanner input = new Scanner(System.in);
+        ArrayList<String> tables = getTables();
+        System.out.println("Tables of "+getDatabaseName());
+        for(int i = 0; i < new StringBuilder("Tables of ").append(getDatabaseName()).length(); i++){
+            System.out.print("-");
+        }
+        System.out.println();
+        for(int i = 0; i < tables.size(); i++){
+            System.out.println((i+1)+". "+tables.get(i));
+        }
+
+
+        System.out.print("Enter the table name: ");
+        String tableName = input.nextLine();
+        System.out.print("Enter the column name: ");
+        String columnName = input.nextLine();
+        System.out.print("Enter the value to search: ");
+        String valueToSearch = input.nextLine();
+        // Construct the SQL query to retrieve data from the specified table and column by value
+        String sqlQueryToRetrieveData = "SELECT * FROM " + tableName + " WHERE " + columnName + " = '" + valueToSearch + "';";
+
+        try(Connection connection = DriverManager.getConnection(url, userName, password);) {
+            // printable is a method dynamic to print any sql table located in SQLTablePrinter
+            SQLTablePrinter.printTable(connection, sqlQueryToRetrieveData);
+
+        } catch (SQLException e){
+            System.out.println("Error [ getFromTableSelectByColumn ] " + e.getMessage());
+        }
+
+
+
+
+    }
+
+
 
     // =====================================================================================================
 

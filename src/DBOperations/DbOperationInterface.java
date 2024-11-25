@@ -30,5 +30,8 @@ public interface DbOperationInterface {
 
     public void getAllDataFromTable(String tableName);
 
+    public ArrayList<String> getTables();
+
+    public void  getFromTableSelectByColumn();
 
 }
