@@ -1,7 +1,6 @@
 package DBOperations;
 
 import DBOperations.SqlTableUI.*;
-import com.mysql.jdbc.Driver;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -9,7 +8,6 @@ import java.io.IOException;
 import java.util.Scanner;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
@@ -22,8 +20,8 @@ public class DBManager implements DbOperationInterface {
     String password;
     String DatabaseName;
 
-    static String fileTables = "src/DBOperations/DatabaseResource/table.csv";
-    static String fileTablesCreateQuery = "src/DBOperations/DatabaseResource/tablePattern.csv";
+    static String fileTables = "src/main/java/DBOperations/DatabaseResource/table.csv";
+    static String fileTablesCreateQuery = "src/main/java/DBOperations/DatabaseResource/tablePattern.csv";
 
 
     public DBManager(String userName, String password, String url, String databaseName) {
@@ -237,9 +235,7 @@ public class DBManager implements DbOperationInterface {
     public boolean isTables() {
         setUrl("jdbc:mysql://localhost:3306/" + getDatabaseName());
         boolean isTable = false;
-        String sqlCheckTables = """
-                SHOW TABLES;
-                """;
+        String sqlCheckTables = "SHOW TABLES;";
         try (Connection connection = DriverManager.getConnection(url, userName, password);
              PreparedStatement preparedStatement = connection.prepareStatement(sqlCheckTables);
         ) {
@@ -262,9 +258,7 @@ public class DBManager implements DbOperationInterface {
 
         setUrl("jdbc:mysql://localhost:3306/" + getDatabaseName());
         boolean isTable = false;
-        String sqlCheckTables = """
-                SHOW TABLES;
-                """;
+        String sqlCheckTables = "SHOW TABLES;";
         ArrayList<String> dataBaseTabes = new ArrayList<>();
         try (Connection connection = DriverManager.getConnection(url, userName, password);
              PreparedStatement preparedStatement = connection.prepareStatement(sqlCheckTables);
@@ -382,7 +376,7 @@ public class DBManager implements DbOperationInterface {
         ArrayList<String> requiredTable = new ArrayList<>();
 
         String columns = "";
-        try (FileReader reader = new FileReader("src/DBOperations/DatabaseResource/table.csv")) {
+        try (FileReader reader = new FileReader(fileTables)) {
             BufferedReader bufferedReader = new BufferedReader(reader);
             String line;
 

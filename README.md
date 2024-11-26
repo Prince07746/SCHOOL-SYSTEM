@@ -20,11 +20,11 @@ Here’s an overview of the key files and directories:
 - **`src/DBOperations/`**: Contains classes for database management.
   - `DBManager.java`: Core class for managing database operations.
   - `DbOperationInterface.java`: Interface defining database operations.
-- **`src/SchoolCore/`**: Contains the core functionality of the school system.
+- **`src/java.SchoolCore/`**: Contains the core functionality of the school system.
   - `Courses/`: Handles course management.
   - `SchoolSystem/`: Defines and manages school entities.
   - `UserSystem/`: Manages user entities, including `Student` and `Teacher`.
-- **`src/SchoolCore/Main.java`**: Entry point for running and testing the system.
+- **`src/java.SchoolCore/Main.java`**: Entry point for running and testing the system.
 
 #### 3. Contribution Guidelines
 - Follow consistent coding styles as per the existing codebase.

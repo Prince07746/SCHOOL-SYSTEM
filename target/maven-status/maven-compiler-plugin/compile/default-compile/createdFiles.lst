@@ -1,0 +1,8 @@
+SchoolCore\UserSystem\Teacher.class
+SchoolCore\UserSystem\Student.class
+SchoolCore\SchoolSystem\SchoolSystem.class
+SchoolCore\UserSystem\UserInterface.class
+SchoolCore\SchoolSystem\School.class
+SchoolCore\UserSystem\User.class
+SchoolCore\Main.class
+SchoolCore\Courses\Courses.class
