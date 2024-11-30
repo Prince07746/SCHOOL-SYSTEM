@@ -1,29 +1,38 @@
 package SchoolCore;
 
-import javafx.application.Application;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.layout.StackPane;
-import javafx.stage.Stage;
+// spring boot modules
+import org.springframework.boot.*;
+import org.springframework.boot.autoconfigure.*;
+import org.springframework.web.bind.annotation.*;
 
 import DBOperations.*;
 
-public class Main extends Application {
-    @Override
-    public void start(Stage primaryStage) {
-        DBManager db = new DBManager("root","selemani","","school1");
-        db.connectDBTechnician();
-        Label label = new Label(db.getTables().toString());
-        StackPane root = new StackPane(label);
-        Scene scene = new Scene(root, 700, 600);
+@RestController
+@EnableAutoConfiguration
+public class Main {
+    DBManager db = new DBManager("root","selemani","","school1");
 
-        primaryStage.setTitle("JavaFX Example");
-        primaryStage.setScene(scene);
-        primaryStage.show();
+    public  Main() {
+        db.connectDBTechnician();
+    }
+    @RequestMapping("/")
+    public String home() {
+        return "welcome to this app we have the following tables ==> /getTables , /getMissingTable";
+    }
+    @RequestMapping("/getTables")
+    public String getTable() {
+        return db.getTables().toString();
+    }
+    @RequestMapping("/getMissingTable")
+    public String getMissingTable() {
+        return db.getMissingTables(db.getTables()).toString();
     }
 
     public static void main(String[] args) {
-        launch(args);
+
+
+        SpringApplication.run(Main.class, args);
+
     }
 }
 
